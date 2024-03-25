@@ -18,6 +18,16 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
+def get_version():
+    # Execute a query to retrieve the SQL version
+    mycursor.execute("SELECT VERSION()")
+
+    # Fetch the result
+    sql_version = mycursor.fetchone()[0]
+
+    # Print the SQL version
+    print("SQL version:", sql_version)
+
 def run_query(query):
     mycursor.execute(query)
     myresult = mycursor.fetchall()
@@ -65,6 +75,7 @@ def run_query2():
     print(myresult)
     return myresult
 
+get_version()
 samply_query = run_query("SELECT DISTINCT C_NATIONKEY, N_NAME FROM CUSTOMER, NATION WHERE C_NATIONKEY = N_NATIONKEY;")
 #query1 = run_query1()
 query2 = run_query2()
