@@ -34,6 +34,27 @@ def run_query(query):
     print(myresult)
     return myresult
 
+def get_nullable_attributes():
+    # Execute a query to retrieve column information
+    query = f"SELECT TABLE_NAME, COLUMN_NAME, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{ secrets['DATABASE_NAME'] }'"
+    mycursor.execute(query)
+
+    # Fetch all the rows
+    columns_info = mycursor.fetchall()
+
+    # Print the column information
+    for column_info in columns_info:
+        table = column_info[0]
+        column = column_info[1]
+        nullable = column_info[2]
+        # print("Table:", column_info[0])
+        # print("Column:", column_info[1])
+        # print("Nullable:", column_info[2])
+        # print()
+        if nullable == "YES":
+            print(f"{table}.{column}")
+    #print(columns_info)
+
 def run_query1():
     nation = "GERMANY"
     query = f'''SELECT s_suppkey, o_orderkey
@@ -76,7 +97,13 @@ def run_query2():
     return myresult
 
 get_version()
-samply_query = run_query("SELECT DISTINCT C_NATIONKEY, N_NAME FROM CUSTOMER, NATION WHERE C_NATIONKEY = N_NATIONKEY;")
-#query1 = run_query1()
-query2 = run_query2()
-    
+get_nullable_attributes()
+# samply_query = run_query("SELECT DISTINCT C_NATIONKEY, N_NAME FROM CUSTOMER, NATION WHERE C_NATIONKEY = N_NATIONKEY;")
+# #query1 = run_query1()
+# query2 = run_query2()
+
+# TODO: UPLOAD LATEST DB INSTANCE
+
+# Close the cursor and connection
+mycursor.close()
+mydb.close()
