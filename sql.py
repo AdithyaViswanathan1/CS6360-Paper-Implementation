@@ -43,6 +43,7 @@ def get_nullable_attributes():
     columns_info = mycursor.fetchall()
 
     # Print the column information
+    nullable_list = []
     for column_info in columns_info:
         table = column_info[0]
         column = column_info[1]
@@ -52,8 +53,10 @@ def get_nullable_attributes():
         # print("Nullable:", column_info[2])
         # print()
         if nullable == "YES":
-            print(f"{table}.{column}")
+            # print(f"{table}.{column}")
+            nullable_list.append(f"{table}.{column}")
     #print(columns_info)
+    return nullable_list
 
 def run_query1():
     nation = "GERMANY"
@@ -97,7 +100,8 @@ def run_query2():
     return myresult
 
 get_version()
-get_nullable_attributes()
+nullable = get_nullable_attributes()
+print(nullable)
 # samply_query = run_query("SELECT DISTINCT C_NATIONKEY, N_NAME FROM CUSTOMER, NATION WHERE C_NATIONKEY = N_NATIONKEY;")
 # #query1 = run_query1()
 # query2 = run_query2()
