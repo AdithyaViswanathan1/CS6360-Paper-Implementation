@@ -125,10 +125,11 @@ def insert_nulls(table_name, column_name, null_rate):
 
     # Update each row individually based on the null rate
     num_rows_changed = 0
-    random.seed(2311)
-    for row in rows:
+    #random.seed(2311)
+    for i,row in enumerate(rows):
         # Generate a random threshold value
         threshold = random.random()  # Random value between 0 and 1
+        #print(i,threshold)
         
         # Check if the generated value is less than or equal to the null rate
         if threshold <= null_rate:
@@ -158,6 +159,8 @@ mycursor = mydb.cursor(buffered=True)
 nullable = get_nullable_attributes(db_name)
 #print("Nullable attributes", nullable)
 
+# TODO: MAKE ROUTINE THAT CREATES 5 copies of tpch_og
+
 start_time = time.time()
 
 # For given null rates [2%, 4%, 6%, 8%, 10%], 
@@ -170,7 +173,7 @@ for i in range(2,11,2):
     mydb = connect_to_database(db_name)
     mycursor = mydb.cursor(buffered=True)
     with open(NULL_LOG_FILE, 'a') as f:
-        f.write(f'!!! Starting null insertion into {db_name} !!!\n\n')
+        f.write(f'!!! Null insertion into {db_name} at rate of {null_rate}% !!!\n\n')
     for table,columns in nullable.items():
         for column in columns:
             insert_nulls(table, column, null_rate/100)

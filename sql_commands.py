@@ -6,19 +6,22 @@ pip install mysql-connector-python
 import mysql.connector
 import json
 
-with open("secrets.json", "r") as file:
-    secrets = json.load(file)
+def connect_to_db(database_name):
+    with open("secrets.json", "r") as file:
+        secrets = json.load(file)
 
-mydb = mysql.connector.connect(
-  host = "localhost",
-  user = secrets['SQL_USERNAME'],
-  password = secrets["SQL_PASSWORD"],
-  database = secrets["DATABASE_NAME"],
-)
+    mydb = mysql.connector.connect(
+    host = "localhost",
+    user = secrets['SQL_USERNAME'],
+    password = secrets["SQL_PASSWORD"],
+    database = database_name,
+    )
 
-mycursor = mydb.cursor()
+    mycursor = mydb.cursor()
 
-def get_version():
+    return mydb,mycursor
+
+def get_version(mycursor):
     # Execute a query to retrieve the SQL version
     mycursor.execute("SELECT VERSION()")
 
@@ -28,13 +31,25 @@ def get_version():
     # Print the SQL version
     print("SQL version:", sql_version)
 
-def run_query(query):
+def run_query(mycursor, query):
     mycursor.execute(query)
     myresult = mycursor.fetchall()
-    print(myresult)
+    #print(myresult)
     return myresult
 
-def get_nullable_attributes():
+def get_attribute_names(mycursor, table_name):
+    # Execute a query to describe the table structure
+    mycursor.execute(f"DESCRIBE {table_name}")
+
+    # Fetch all the rows (attributes)
+    attributes = mycursor.fetchall()
+
+    # Extract the attribute names from the result
+    attribute_names = [attr[0] for attr in attributes]
+    # print("ATTRIBUTES", attribute_names)
+    return attribute_names
+
+def get_nullable_attributes(mycursor):
     # Execute a query to retrieve column information
     query = f"SELECT TABLE_NAME, COLUMN_NAME, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{ secrets['DATABASE_NAME'] }'"
     mycursor.execute(query)
@@ -58,8 +73,7 @@ def get_nullable_attributes():
     #print(columns_info)
     return nullable_list
 
-def run_query1():
-    nation = "GERMANY"
+def run_query1(mycursor, nation):
     query = f'''SELECT s_suppkey, o_orderkey
                 FROM supplier, lineitem l1, orders, nation WHERE s_suppkey = l1.l_suppkey
                 AND o_orderkey = l1.l_orderkey
@@ -81,7 +95,7 @@ def run_query1():
     #print(myresult)
     return myresult
 
-def run_query2():
+def run_query2(mycursor):
     countries = ('GERMANY', 'INDIA', 'UNITED STATES', 'INDONESIA')
     query = f'''SELECT c_custkey, c_nationkey
                 FROM customer
@@ -99,15 +113,10 @@ def run_query2():
     print(myresult)
     return myresult
 
-get_version()
-nullable = get_nullable_attributes()
-print(nullable)
-# samply_query = run_query("SELECT DISTINCT C_NATIONKEY, N_NAME FROM CUSTOMER, NATION WHERE C_NATIONKEY = N_NATIONKEY;")
-# #query1 = run_query1()
-# query2 = run_query2()
-
-# TODO: UPLOAD LATEST DB INSTANCE
+# mydb, mycursor = connect_to_db()
+# get_version(mycursor)
 
 # Close the cursor and connection
-mycursor.close()
-mydb.close()
+def close_db(mydb, mycursor):
+    mycursor.close()
+    mydb.close()
