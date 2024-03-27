@@ -6,14 +6,17 @@ import time
 with open("secrets.json", "r") as file:
     secrets = json.load(file)
 
-mydb = mysql.connector.connect(
-  host = "localhost",
-  user = secrets['SQL_USERNAME'],
-  password = secrets["SQL_PASSWORD"],
-  database = secrets["DATABASE_NAME"],
-)
+NULL_LOG_FILE = "null_log.txt"
 
-mycursor = mydb.cursor(buffered=True)
+def connect_to_database(database_name):
+    # Connect to the MySQL database
+    mydb = mysql.connector.connect(
+    host = "localhost",
+    user = secrets['SQL_USERNAME'],
+    password = secrets["SQL_PASSWORD"],
+    database = database_name,
+    )
+    return mydb
 
 def timeit(func):
     def wrapper(*args, **kwargs):
@@ -25,9 +28,9 @@ def timeit(func):
         return result
     return wrapper
 
-def get_nullable_attributes():
+def get_nullable_attributes(database_name):
     # Execute a query to retrieve column information
-    query = f"SELECT TABLE_NAME, COLUMN_NAME, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{ secrets['DATABASE_NAME'] }'"
+    query = f"SELECT TABLE_NAME, COLUMN_NAME, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{ database_name }'"
     mycursor.execute(query)
 
     # Fetch all the rows
@@ -139,21 +142,43 @@ def insert_nulls(table_name, column_name, null_rate):
             elif len(pks) == 2:
                 update_query += f"{pks[0]} = {row[pk_indices[0]]} AND {pks[1]} = {row[pk_indices[1]]};"
             #print("QUERY:\n", update_query,"\n")
-            # # mycursor.execute(update_query, (row[pks],))  # Replace row[pks] with the actual primary key value
-            # # mydb.commit()
+            mycursor.execute(update_query)
+            mydb.commit()
             # #print(f"Value in column '{column_name}' set to NULL for row with primary key {row[pks]}.")
 
-    null_count = count_nulls(table,column)
-    print(f"{table_name}.{column_name}: {num_rows_changed}/{len(rows)} rows changed ({num_rows_changed/len(rows):.4})")
-    #print(f"{table_name}.{column_name}: {null_count}/{len(rows)} rows changed ({null_count/len(rows):.4})")
+    null_count = count_nulls(table_name,column_name)
+    #print(f"{table_name}.{column_name}: {num_rows_changed}/{len(rows)} rows changed ({num_rows_changed/len(rows):.4})")
+    log_out = f"{table_name}.{column_name}: {null_count}/{len(rows)} rows changed ({null_count/len(rows):.4})\n"
+    with open(NULL_LOG_FILE, 'a') as f:
+        f.write(log_out)
 
+db_name = "tpch_og"
+mydb = connect_to_database(db_name)
+mycursor = mydb.cursor(buffered=True)
+nullable = get_nullable_attributes(db_name)
+#print("Nullable attributes", nullable)
 
-nullable = get_nullable_attributes()
-print(nullable)
-for table,columns in nullable.items():
-    for column in columns:
-        insert_nulls(table, column, 0.05)  
-        # count_nulls(table,column) 
+start_time = time.time()
+
+# For given null rates [2%, 4%, 6%, 8%, 10%], 
+# write nulls to every nullable attribute in each of the databases
+with open(NULL_LOG_FILE, 'w') as f:
+    f.write(f'NULL LOG\n\n')
+for i in range(2,11,2):
+    null_rate = i
+    db_name = f"tpch_{null_rate}pct"
+    mydb = connect_to_database(db_name)
+    mycursor = mydb.cursor(buffered=True)
+    with open(NULL_LOG_FILE, 'a') as f:
+        f.write(f'!!! Starting null insertion into {db_name} !!!\n\n')
+    for table,columns in nullable.items():
+        for column in columns:
+            insert_nulls(table, column, null_rate/100)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+with open(NULL_LOG_FILE, 'a') as f:
+    f.write(f'\nTime elapsed: {elapsed_time}')
 
 # Close the cursor and connection
 mycursor.close()
