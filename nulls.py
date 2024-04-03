@@ -28,6 +28,30 @@ def timeit(func):
         return result
     return wrapper
 
+import mysql.connector
+
+@timeit
+def copy_database(source_db, dest_db):
+    try:
+        # Create new database
+        mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {dest_db}")
+        
+        # Export schema and data from source database
+        mycursor.execute(f"USE {source_db}")
+        mycursor.execute("SHOW TABLES")
+        tables = mycursor.fetchall()
+        for table in tables:
+            table_name = table[0]
+            mycursor.execute(f"CREATE TABLE {dest_db}.{table_name} LIKE {source_db}.{table_name}")
+            mycursor.execute(f"INSERT INTO {dest_db}.{table_name} SELECT * FROM {source_db}.{table_name}")
+
+        # Commit changes
+        mydb.commit()
+        print("Database copied successfully!")
+
+    except mysql.connector.Error as error:
+        print(f"Error: {error}")
+
 def get_nullable_attributes(database_name):
     # Execute a query to retrieve column information
     query = f"SELECT TABLE_NAME, COLUMN_NAME, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{ database_name }'"
@@ -153,6 +177,8 @@ def insert_nulls(table_name, column_name, null_rate):
     with open(NULL_LOG_FILE, 'a') as f:
         f.write(log_out)
 
+with open(NULL_LOG_FILE, 'w') as f:
+    f.write(f'NULL LOG\n\n')
 db_name = "tpch_og"
 mydb = connect_to_database(db_name)
 mycursor = mydb.cursor(buffered=True)
@@ -160,20 +186,28 @@ nullable = get_nullable_attributes(db_name)
 #print("Nullable attributes", nullable)
 
 # TODO: MAKE ROUTINE THAT CREATES 5 copies of tpch_og
+db_names = ['tpch_2pct','tpch_4pct', 'tpch_6pct', 'tpch_8pct', 'tpch_10pct']
+for db_name in db_names:
+    print(f"Creating {db_name}")
+    start_time = time.time()
+    copy_database('tpch_og',db_name)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    with open(NULL_LOG_FILE, 'a') as f:
+        f.write(f'Created database: {db_name} in {elapsed_time:.4} seconds.\n')
+
 
 start_time = time.time()
 
 # For given null rates [2%, 4%, 6%, 8%, 10%], 
 # write nulls to every nullable attribute in each of the databases
-with open(NULL_LOG_FILE, 'w') as f:
-    f.write(f'NULL LOG\n\n')
 for i in range(2,11,2):
     null_rate = i
     db_name = f"tpch_{null_rate}pct"
     mydb = connect_to_database(db_name)
     mycursor = mydb.cursor(buffered=True)
     with open(NULL_LOG_FILE, 'a') as f:
-        f.write(f'!!! Null insertion into {db_name} at rate of {null_rate}% !!!\n\n')
+        f.write(f'\n!!! Null insertion into {db_name} at rate of {null_rate}% !!!\n\n')
     for table,columns in nullable.items():
         for column in columns:
             insert_nulls(table, column, null_rate/100)
@@ -181,7 +215,7 @@ for i in range(2,11,2):
 end_time = time.time()
 elapsed_time = end_time - start_time
 with open(NULL_LOG_FILE, 'a') as f:
-    f.write(f'\nTime elapsed: {elapsed_time}')
+    f.write(f'\nTime elapsed: {elapsed_time:.4} seconds')
 
 # Close the cursor and connection
 mycursor.close()
