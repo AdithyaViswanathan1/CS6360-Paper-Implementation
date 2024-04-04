@@ -115,6 +115,27 @@ def run_query2(mycursor, countries):
     #print(myresult)
     return myresult
 
+def run_query3(mycursor):
+    q = "SELECT S_SUPPKEY FROM SUPPLIER ORDER BY RAND() LIMIT 1;"
+    mycursor.execute(q)
+    supp_key = mycursor.fetchall()[0][0]
+    #print("random supp_key", supp_key)
+
+    query = f'''
+            SELECT o_orderkey
+            FROM orders
+            WHERE NOT EXISTS (
+            SELECT *
+            FROM lineitem
+            WHERE l_orderkey = o_orderkey
+            AND l_suppkey <> {supp_key} )
+    '''
+    mycursor.execute(query)
+    myresult = mycursor.fetchall()
+    myresult = [tup[0] for tup in myresult]
+    #print(myresult)
+    return myresult
+
 # mydb, mycursor = connect_to_db()
 # get_version(mycursor)
 
