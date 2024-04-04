@@ -96,22 +96,23 @@ def run_query1(mycursor, nation):
     #print(myresult)
     return myresult
 
-def run_query2(mycursor):
-    countries = ('GERMANY', 'INDIA', 'UNITED STATES', 'INDONESIA')
+def run_query2(mycursor, countries):
+    #countries = ('GERMANY', 'INDIA', 'UNITED STATES', 'INDONESIA', 'UNITED KINGDOM', 'ARGENTINA', 'PERU')
     query = f'''SELECT c_custkey, c_nationkey
                 FROM customer
                 WHERE c_nationkey IN {countries}
-                AND c_acctbal > (
-                SELECT avg(c_acctbal) FROM customer
-                WHERE c_acctbal > 0.00
-                AND c_nationkey IN {countries} ) AND NOT EXISTS (
-                SELECT *
-                FROM orders
-                WHERE o_custkey = c_custkey )
+                    AND c_acctbal > (
+                                    SELECT avg(c_acctbal) FROM customer
+                                    WHERE c_acctbal > 0.00
+                                    AND c_nationkey IN {countries} ) 
+                    AND NOT EXISTS (
+                                    SELECT *
+                                    FROM orders
+                                    WHERE o_custkey = c_custkey )
             '''
     mycursor.execute(query)
     myresult = mycursor.fetchall()
-    print(myresult)
+    #print(myresult)
     return myresult
 
 # mydb, mycursor = connect_to_db()
