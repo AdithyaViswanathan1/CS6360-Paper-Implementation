@@ -1,8 +1,8 @@
 (optional) export PATH=${PATH}:/usr/local/mysql/bin/
 mysql -u root -p --local-infile
 
-mysql> CREATE DATABASE tpch;
-mysql> USE tpch;
+mysql> CREATE DATABASE tpch_og;
+mysql> USE tpch_og;
 
 CREATE TABLE NATION  ( N_NATIONKEY  INTEGER NOT NULL,
                             N_NAME       CHAR(25),
@@ -77,15 +77,16 @@ CREATE TABLE LINEITEM ( L_ORDERKEY    INTEGER NOT NULL,
 SET GLOBAL local_infile=1;
 quit
 mysql --local-infile=1 -u root -p
+use tpch_og
 
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/customer.tbl' INTO TABLE CUSTOMER FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/orders.tbl' INTO TABLE ORDERS FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/lineitem.tbl' INTO TABLE LINEITEM FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/nation.tbl' INTO TABLE NATION FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/partsupp.tbl' INTO TABLE PARTSUPP FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/part.tbl' INTO TABLE PART FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/region.tbl' INTO TABLE REGION FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_100mb/supplier.tbl' INTO TABLE SUPPLIER FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/customer.tbl' INTO TABLE CUSTOMER FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/orders.tbl' INTO TABLE ORDERS FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/lineitem.tbl' INTO TABLE LINEITEM FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/nation.tbl' INTO TABLE NATION FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/partsupp.tbl' INTO TABLE PARTSUPP FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/part.tbl' INTO TABLE PART FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/region.tbl' INTO TABLE REGION FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/supplier.tbl' INTO TABLE SUPPLIER FIELDS TERMINATED BY '|';
 
 ALTER TABLE ORDERS 
 ADD PRIMARY KEY (O_ORDERKEY);

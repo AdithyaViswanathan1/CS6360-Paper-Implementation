@@ -5,6 +5,7 @@ pip install mysql-connector-python
 '''
 import mysql.connector
 import json
+import random
 
 def connect_to_db(database_name):
     with open("secrets.json", "r") as file:
@@ -135,6 +136,43 @@ def run_query3(mycursor):
     myresult = [tup[0] for tup in myresult]
     #print(myresult)
     return myresult
+
+def run_query4(mycursor, all_nations):
+    # List of colors in Clause 4.2.3: https://www.tpc.org/tpc_documents_current_versions/pdf/tpc-h_v2.17.1.pdf
+    colors = [  "almond", "antique", "aquamarine", "azure", "beige", "bisque", "black", "blanched", "blue",
+                "blush", "brown", "burlywood", "burnished", "chartreuse", "chiffon", "chocolate", "coral",
+                "cornflower", "cornsilk", "cream", "cyan", "dark", "deep", "dim", "dodger", "drab", "firebrick",
+                "floral", "forest", "frosted", "gainsboro", "ghost", "goldenrod", "green", "grey", "honeydew",
+                "hot", "indian", "ivory", "khaki", "lace", "lavender", "lawn", "lemon", "light", "lime", "linen",
+                "magenta", "maroon", "medium", "metallic", "midnight", "mint", "misty", "moccasin", "navajo",
+                "navy", "olive", "orange", "orchid", "pale", "papaya", "peach", "peru", "pink", "plum", "powder",
+                "puff", "purple", "red", "rose", "rosy", "royal", "saddle", "salmon", "sandy", "seashell", "sienna",
+                "sky", "slate", "smoke", "snow", "spring", "steel", "tan", "thistle", "tomato", "turquoise", "violet",
+                "wheat", "white", "yellow"
+            ]
+    #print(f"{len(colors)} possible colors")
+    color = colors[random.randint(0,len(colors)-1)]
+    nation = all_nations[random.randint(0,len(all_nations)-1)]
+    #print("color", color, "nation", nation)
+    query = f"""SELECT o_orderkey
+                FROM orders
+                WHERE NOT EXISTS (
+                SELECT *
+                FROM lineitem, part, supplier, nation
+                WHERE l_orderkey = o_orderkey
+                AND l_partkey = p_partkey
+                AND l_suppkey = s_suppkey
+                AND p_name LIKE '%{color}%'
+                AND s_nationkey = n_nationkey
+                AND n_name = '{nation}' )
+            """
+    mycursor.execute(query)
+    myresult = mycursor.fetchall()
+    #print(myresult)
+    myresult = [tup[0] for tup in myresult]
+    #print(len(myresult), myresult[:5])
+    return myresult, color, nation
+    
 
 # mydb, mycursor = connect_to_db()
 # get_version(mycursor)
