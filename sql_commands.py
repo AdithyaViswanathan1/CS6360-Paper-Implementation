@@ -117,7 +117,7 @@ def run_query2(mycursor, countries):
     #print(myresult)
     return myresult
 
-def run_query3(mycursor):
+def run_query3(mycursor, simple=True):
     q = "SELECT S_SUPPKEY FROM SUPPLIER ORDER BY RAND() LIMIT 1;"
     mycursor.execute(q)
     supp_key = mycursor.fetchall()[0][0]
@@ -139,6 +139,8 @@ def run_query3(mycursor):
     myresult = mycursor.fetchall()
     myresult = [tup[0] for tup in myresult]
     #print(myresult)
+    if simple:
+        return myresult
     return myresult, total_time, supp_key
 
 def run_query3_modified(mycursor, s_key):
