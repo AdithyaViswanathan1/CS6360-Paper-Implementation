@@ -6,6 +6,7 @@ pip install mysql-connector-python
 import mysql.connector
 import json
 import random
+import time
 
 def connect_to_db(database_name):
     with open("secrets.json", "r") as file:
@@ -131,11 +132,35 @@ def run_query3(mycursor):
             WHERE l_orderkey = o_orderkey
             AND l_suppkey <> {supp_key} )
     '''
+    start_time = time.time()
     mycursor.execute(query)
+    end_time = time.time()
+    total_time = end_time - start_time
     myresult = mycursor.fetchall()
     myresult = [tup[0] for tup in myresult]
     #print(myresult)
-    return myresult
+    return myresult, total_time, supp_key
+
+def run_query3_modified(mycursor, s_key):
+    query = f'''
+            SELECT o_orderkey
+            FROM orders
+            WHERE NOT EXISTS (
+            SELECT *
+            FROM lineitem
+            WHERE l_orderkey = o_orderkey
+            AND ( l_suppkey <> {s_key}
+            OR l_suppkey IS NULL ) )
+    '''
+    
+    start_time = time.time()
+    mycursor.execute(query)
+    end_time = time.time()
+    total_time = end_time - start_time
+    myresult = mycursor.fetchall()
+    myresult = [tup[0] for tup in myresult]
+    #print(myresult)
+    return myresult,total_time
 
 def run_query4(mycursor, all_nations):
     # List of colors in Clause 4.2.3: https://www.tpc.org/tpc_documents_current_versions/pdf/tpc-h_v2.17.1.pdf
