@@ -179,18 +179,26 @@ def insert_nulls(table_name, column_name, null_rate):
 
 with open(NULL_LOG_FILE, 'w') as f:
     f.write(f'NULL LOG\n\n')
-db_name = "tpch_og"
-mydb = connect_to_database(db_name)
+
+# !!! PRIMARY DETERMINANT VARIABLE (determines base db to make copies from) !!!
+source_db_name = "tpch_og"
+mydb = connect_to_database(source_db_name)
 mycursor = mydb.cursor(buffered=True)
-nullable = get_nullable_attributes(db_name)
+nullable = get_nullable_attributes(source_db_name)
 #print("Nullable attributes", nullable)
 
-# TODO: MAKE ROUTINE THAT CREATES 5 copies of tpch_og
-db_names = ['tpch_2pct','tpch_4pct', 'tpch_6pct', 'tpch_8pct', 'tpch_10pct']
+# !!! PRIMARY DETERMINANT LIST (determines null rate of the db copies) !!!
+null_rates = [1,3,5]
+db_names = []
+for null_rate in null_rates:
+    db_names.append(f"tpch_{null_rate}pct")
+# EXAMPLE RESULT: db_names = ['tpch_1gb_2pct','tpch_1gb_4pct', 'tpch_1gb_6pct', 'tpch_1gb_8pct', 'tpch_1gb_10pct']
+
+print("Creating db copies:", db_names)
 for db_name in db_names:
     print(f"Creating {db_name}")
     start_time = time.time()
-    copy_database('tpch_og',db_name)
+    copy_database(source_db_name,db_name)
     end_time = time.time()
     elapsed_time = end_time - start_time
     with open(NULL_LOG_FILE, 'a') as f:
@@ -199,11 +207,9 @@ for db_name in db_names:
 
 start_time = time.time()
 
-# For given null rates [2%, 4%, 6%, 8%, 10%], 
+# For given null rates,
 # write nulls to every nullable attribute in each of the databases
-for i in range(2,11,2):
-    null_rate = i
-    db_name = f"tpch_{null_rate}pct"
+for null_rate,db_name in zip(null_rates, db_names):
     mydb = connect_to_database(db_name)
     mycursor = mydb.cursor(buffered=True)
     with open(NULL_LOG_FILE, 'a') as f:
