@@ -79,14 +79,14 @@ quit
 mysql --local-infile=1 -u root -p
 use tpch_og
 
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/customer.tbl' INTO TABLE CUSTOMER FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/orders.tbl' INTO TABLE ORDERS FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/lineitem.tbl' INTO TABLE LINEITEM FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/nation.tbl' INTO TABLE NATION FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/partsupp.tbl' INTO TABLE PARTSUPP FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/part.tbl' INTO TABLE PART FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/region.tbl' INTO TABLE REGION FIELDS TERMINATED BY '|';
-LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_1gb/supplier.tbl' INTO TABLE SUPPLIER FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/customer.tbl' INTO TABLE CUSTOMER FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/orders.tbl' INTO TABLE ORDERS FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/lineitem.tbl' INTO TABLE LINEITEM FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/nation.tbl' INTO TABLE NATION FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/partsupp.tbl' INTO TABLE PARTSUPP FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/part.tbl' INTO TABLE PART FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/region.tbl' INTO TABLE REGION FIELDS TERMINATED BY '|';
+LOAD DATA LOCAL INFILE '/Users/adithya/Documents/code/db_proj/tables_300mb/supplier.tbl' INTO TABLE SUPPLIER FIELDS TERMINATED BY '|';
 
 ALTER TABLE ORDERS 
 ADD PRIMARY KEY (O_ORDERKEY);

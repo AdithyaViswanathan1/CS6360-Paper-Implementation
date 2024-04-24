@@ -75,7 +75,7 @@ def get_nullable_attributes(mycursor):
     #print(columns_info)
     return nullable_list
 
-def run_query1(mycursor, nation):
+def run_query1(mycursor, nation, simple=True):
     query = f'''SELECT s_suppkey, o_orderkey
                 FROM supplier, lineitem l1, orders, nation WHERE s_suppkey = l1.l_suppkey
                 AND o_orderkey = l1.l_orderkey
@@ -93,12 +93,48 @@ def run_query1(mycursor, nation):
                 AND s_nationkey = n_nationkey
                 AND n_name = "{nation}"'''
     
+    start_time = time.time()
     mycursor.execute(query)
+    end_time = time.time()
+    total_time = end_time - start_time
     myresult = mycursor.fetchall()
     #print(myresult)
-    return myresult
+    
+    if simple:
+        return myresult
+    return myresult, total_time, nation
 
-def run_query2(mycursor, countries):
+def run_query1_modified(mycursor, nation):
+    query = f"""SELECT s_suppkey, o_orderkey
+                FROM supplier, lineitem l1, orders, nation
+                WHERE s_suppkey = l1.l_suppkey
+                AND o_orderkey = l1.l_orderkey
+                AND o_orderstatus = 'F'
+                AND l1.l_receiptdate > l1.l_commitdate
+                AND s_nationkey = n_nationkey
+                AND n_name = "{nation}"
+                AND EXISTS (
+                SELECT *
+                FROM lineitem l2
+                WHERE l2.l_orderkey = l1.l_orderkey
+                AND l2.l_suppkey <> l1.l_suppkey )
+                AND NOT EXISTS (
+                SELECT *
+                FROM lineitem l3
+                WHERE l3.l_orderkey = l1.l_orderkey
+                AND ( l3.l_suppkey <> l1.l_suppkey
+                OR l3.l_suppkey IS NULL )
+                AND ( l3.l_receiptdate > l3.l_commitdate
+                OR l3.l_receiptdate IS NULL
+                OR l3.l_commitdate IS NULL ) )"""
+    start_time = time.time()
+    mycursor.execute(query)
+    end_time = time.time()
+    total_time = end_time - start_time
+    myresult = mycursor.fetchall()
+    return myresult, total_time
+
+def run_query2(mycursor, countries, simple=True):
     #countries = ('GERMANY', 'INDIA', 'UNITED STATES', 'INDONESIA', 'UNITED KINGDOM', 'ARGENTINA', 'PERU')
     query = f'''SELECT c_custkey, c_nationkey
                 FROM customer
@@ -112,10 +148,39 @@ def run_query2(mycursor, countries):
                                     FROM orders
                                     WHERE o_custkey = c_custkey )
             '''
+    start_time = time.time()
     mycursor.execute(query)
+    end_time = time.time()
+    total_time = end_time - start_time
     myresult = mycursor.fetchall()
     #print(myresult)
-    return myresult
+    if simple:
+        return myresult
+    return myresult, total_time, countries
+
+def run_query2_modified(mycursor, countries):
+    query = f"""SELECT c_custkey, c_nationkey
+                FROM customer
+                WHERE c_nationkey IN {countries}
+                AND c_acctbal > (
+                SELECT AVG(c_acctbal)
+                FROM customer
+                WHERE c_acctbal > 0.00
+                AND c_nationkey IN {countries} )
+                AND NOT EXISTS (
+                SELECT *
+                FROM orders
+                WHERE o_custkey = c_custkey )
+                AND NOT EXISTS (
+                SELECT *
+                FROM orders
+                WHERE o_custkey IS NULL ) """
+    start_time = time.time()
+    mycursor.execute(query)
+    end_time = time.time()
+    total_time = end_time - start_time
+    myresult = mycursor.fetchall()
+    return myresult, total_time
 
 def run_query3(mycursor, simple=True):
     q = "SELECT S_SUPPKEY FROM SUPPLIER ORDER BY RAND() LIMIT 1;"
@@ -164,7 +229,7 @@ def run_query3_modified(mycursor, s_key):
     #print(myresult)
     return myresult,total_time
 
-def run_query4(mycursor, all_nations):
+def run_query4(mycursor, all_nations, simple=True):
     # List of colors in Clause 4.2.3: https://www.tpc.org/tpc_documents_current_versions/pdf/tpc-h_v2.17.1.pdf
     colors = [  "almond", "antique", "aquamarine", "azure", "beige", "bisque", "black", "blanched", "blue",
                 "blush", "brown", "burlywood", "burnished", "chartreuse", "chiffon", "chocolate", "coral",
@@ -193,13 +258,80 @@ def run_query4(mycursor, all_nations):
                 AND s_nationkey = n_nationkey
                 AND n_name = '{nation}' )
             """
+    start_time = time.time()
     mycursor.execute(query)
+    end_time = time.time()
+    total_time = end_time - start_time
     myresult = mycursor.fetchall()
     #print(myresult)
     myresult = [tup[0] for tup in myresult]
     #print(len(myresult), myresult[:5])
-    return myresult, color, nation
+    if simple:
+        return myresult, color, nation
+    return myresult, total_time, nation, color
+
+def run_query4_modified(mycursor, nation, color):
+    query1 = f"""   CREATE OR REPLACE VIEW part_view AS
+                    SELECT p_partkey
+                    FROM part
+                    WHERE p_name IS NULL
+                    UNION
+                    SELECT p_partkey
+                    FROM part
+                    WHERE p_name LIKE '%{color}%';"""
+    query2 = f"""   CREATE OR REPLACE VIEW supp_view AS
+                    SELECT s_suppkey
+                    FROM supplier
+                    WHERE s_nationkey IS NULL
+                    UNION
+                    SELECT s_suppkey
+                    FROM supplier, nation
+                    WHERE s_nationkey = n_nationkey
+                    AND n_name = '{nation}';"""
+    query3 = f"""
+                SELECT o_orderkey
+                FROM orders
+                WHERE NOT EXISTS (
+                SELECT *
+                FROM lineitem, part_view, supp_view
+                WHERE l_orderkey = o_orderkey
+                AND l_partkey = p_partkey
+                AND l_suppkey = s_suppkey )
+                AND NOT EXISTS (
+                SELECT *
+                FROM lineitem, supp_view
+                WHERE l_orderkey = o_orderkey
+                AND l_partkey IS NULL
+                AND l_suppkey = s_suppkey
+                AND EXISTS ( SELECT * FROM part_view ) )
+                AND NOT EXISTS (
+                SELECT *
+                FROM lineitem, part_view
+                WHERE l_orderkey = o_orderkey
+                AND l_partkey = p_partkey
+                AND l_suppkey IS NULL
+                AND EXISTS ( SELECT * FROM supp_view ) )
+                AND NOT EXISTS (
+                SELECT *
+                FROM lineitem
+                WHERE l_orderkey = o_orderkey
+                AND l_partkey IS NULL
+                AND l_suppkey IS NULL
+                AND EXISTS ( SELECT * FROM part_view )
+                AND EXISTS ( SELECT * FROM supp_view ) ) """
     
+    # print("1st parts")
+    mycursor.execute(query1)
+    mycursor.execute(query2)
+    # print("execution")
+    start_time = time.time()
+    mycursor.execute(query3)
+    end_time = time.time()
+    total_time = end_time - start_time
+    # print("fetching all")
+    myresult = mycursor.fetchall()
+    #print(myresult)
+    return myresult,total_time
 
 # mydb, mycursor = connect_to_db()
 # get_version(mycursor)
