@@ -13,7 +13,7 @@ Our group explored the findings in “Making SQL Queries Correct on Incomplete D
 4. In your Python environment, you will need the following packages: importlib, numpy, csv, matplotlib, pandas, mysql.connector. 
 
 - [ ] <How to Use the Project here (i.e. how someone could try it themselves [what to do])>
-- - nulls.py - creates copies of databases and inserts nulls at a given null rate into nullable attributes.
+    - nulls.py - creates copies of databases and inserts nulls at a given null rate into nullable attributes.
 
 (github README formatting and syntax)
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
