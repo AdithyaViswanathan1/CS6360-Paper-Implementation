@@ -9,6 +9,8 @@ Our group explored the findings in “Making SQL Queries Correct on Incomplete D
 - [ ] <Installation & Run Process here (i.e. how to get the project set-up)>
 1. Install MySQL and MySQLWorkbench.
 2. Create root user and password. Then update secrets.json file with your SQL credentials
+3. In MySQLWorkbench, go to Server > Data Import. Select "Import from Self-Contained File" and choose the given SQL file. There will be multiple databases and multiple tables within each database. This will load the full database into your local MySQL instance.
+4. In your Python environment, you will need the following packages: importlib, numpy, csv, matplotlib, pandas, mysql.connector. 
 
 - [ ] <How to Use the Project here (i.e. how someone could try it themselves [what to do])>
 
