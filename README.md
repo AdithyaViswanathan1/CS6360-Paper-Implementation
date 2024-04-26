@@ -13,11 +13,19 @@ Our group explored the findings in “Making SQL Queries Correct on Incomplete D
 4. In your Python environment, you will need the following packages: importlib, numpy, csv, matplotlib, pandas, mysql.connector. 
 
 - [ ] <How to Use the Project here (i.e. how someone could try it themselves [what to do])>
-Here is a description of each script file (.py and .ipynb) and what their purpose is.
-    - `sql_commands.py` - file which contains methods for executing each query (1-4) and their modified queries. Doesn't produce any result by itself since the following classes make use of this. 
+Description of each script file (.py and .ipynb) and what their purpose is.
+    - `sql_commands.py` - file which contains methods for executing each query (1-4) and their translated queries. Doesn't produce any result by itself since the following classes make use of this. 
     - `nulls.py` - creates copies of databases and inserts nulls at a given null rate into nullable attributes. Not needed to run since database file has already been given with null databased in it.
     - `false_positive.ipynb` - script that calculates false positive rate for each null rate for all queries across all null databases. Intermediate file is `fp_results.csv` and final graph result is `false_positives.png`
-    - 
+    - `performance_results.ipynb` - compares queries with their translated queries and graphs their performance in `performance_results` directory.
+    - `bigger_instances.ipynb` - compares query and translated query performance on larger database sizes and records their raw values in `bigger_instances_results.csv` and their final table in `bigger_instances_final.png`
+
+Description of other files:
+    - `mysql_commands.txt` - commands that were used to create database in MySQL after DBGen creates .tbl files.
+    - `null_log.txt` - log file which contains log messages during null database creation for testing purposes
+    - `secrets.json` - database credentials (should be changed to your local db credentials)
+    - `TPC-H_Datamodel.pdf` - TPCH database entity-relationship model (for reference)
+
 
 (github README formatting and syntax)
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
