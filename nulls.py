@@ -181,14 +181,14 @@ with open(NULL_LOG_FILE, 'w') as f:
     f.write(f'NULL LOG\n\n')
 
 # !!! PRIMARY DETERMINANT VARIABLE (determines base db to make copies from) !!!
-source_db_name = "tpch_300mb"
+source_db_name = "tpch_og"
 mydb = connect_to_database(source_db_name)
 mycursor = mydb.cursor(buffered=True)
 nullable = get_nullable_attributes(source_db_name)
 #print("Nullable attributes", nullable)
 
 # !!! PRIMARY DETERMINANT LIST (determines null rate of the db copies) !!!
-null_rates = [1,5]
+null_rates = [6,8,10]
 db_names = []
 for null_rate in null_rates:
     db_names.append(f"{source_db_name}_{null_rate}pct")
