@@ -26,4 +26,4 @@ Our group explored the findings in “Making SQL Queries Correct on Incomplete D
         - `mysql_commands.txt` - Commands that were used to create database in MySQL after DBGen creates .tbl files.
         - `null_log.txt` - Log file which contains log messages during null database creation for testing purposes
         - `secrets.json` - Database credentials (this should be changed to match your local db credentials)
-        - `TPC-H_Datamodel.pdf` - TPCH database entity-relationship model (for reference)
+        - `TPC-H_Datamodel.pdf` - TPCH database entity-relationship model, which we found online and used for reference and high-level overview.
