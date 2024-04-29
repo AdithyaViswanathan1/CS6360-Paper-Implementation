@@ -8,7 +8,7 @@ Our group explored the findings in “Making SQL Queries Correct on Incomplete D
 ## Project Setup & File Guide
 1. Install MySQL and MySQLWorkbench.
 2. Create a root user and password. Then, update secrets.json file with your SQL credentials.
-3. In MySQLWorkbench, go to Server > Data Import. Select "Import from Self-Contained File" and choose the given SQL file. There will be multiple databases and multiple tables within each database. This will load the full database into your local MySQL instance.
+3. In MySQLWorkbench, go to Server > Data Import. Select "Import from Self-Contained File" and choose the given SQL file: `tpch_with_nulls_v5.sql`. It can be downloaded at this link: `https://drive.google.com/file/d/102LKULa9NA4JBPcbMLamt0cWHwO0BFaF/view?usp=sharing`. There will be multiple databases and multiple tables within each database. This will load the full database into your local MySQL instance.
 4. In your Python environment, you will need the following packages: importlib, numpy, csv, matplotlib, pandas, mysql.connector. 
 
     - Description of each script file (.py and .ipynb) and what their purpose is.
