@@ -13,7 +13,7 @@ Our group explored the findings in “Making SQL Queries Correct on Incomplete D
 3. In MySQLWorkbench, go to Server > Data Import. Select "Import from Self-Contained File" and choose the given SQL file: `tpch_with_nulls_v5.sql`. It can be downloaded at this link: https://drive.google.com/file/d/102LKULa9NA4JBPcbMLamt0cWHwO0BFaF/view?usp=sharing.
 
    There will be multiple databases and multiple tables within each database. This will load the full database into your local MySQL instance.
-5. In your Python environment, you will need the following packages: importlib, numpy, csv, matplotlib, pandas, mysql.connector. 
+4. In your Python environment, you will need the following packages: importlib, numpy, csv, matplotlib, pandas, mysql.connector. 
 
     - Description of each script file (.py and .ipynb) and what their purpose is.
         - `sql_commands.py` - file which contains methods for executing each query (1-4) and their translated queries. Doesn't produce any result by itself since the following classes make use of this. 
