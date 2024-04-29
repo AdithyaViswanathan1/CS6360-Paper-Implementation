@@ -1,3 +1,8 @@
+Guides:
+https://github.com/catarinaribeir0/queries-tpch-dbgen-mysql
+https://tedamoh.com/en/blog/55-data-modeling/78-generating-large-example-data-with-tpc-h
+
+Commands:
 (optional) export PATH=${PATH}:/usr/local/mysql/bin/
 mysql -u root -p --local-infile
 
